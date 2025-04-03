@@ -21,34 +21,26 @@
                     };
 
                     // Abrufen der 'To'-Empfänger
-                    Office.context.mailbox.item.to.getAsync(function(result) {
-                        if (result.status === Office.AsyncResultStatus.Succeeded) {
-                            recipients.to = result.value;
-                        } else {
-                            console.log("Fehler beim Abrufen der Empfänger (To): " + result.error.message);
-                        }
-
-                        // Abrufen der 'CC'-Empfänger
-                        Office.context.mailbox.item.cc.getAsync(function(result) {
-                            if (result.status === Office.AsyncResultStatus.Succeeded) {
-                                recipients.cc = result.value;
-                            } else {
-                                console.log("Fehler beim Abrufen der Empfänger (CC): " + result.error.message);
-                            }
-
-                            // Abrufen der 'BCC'-Empfänger
-                            Office.context.mailbox.item.bcc.getAsync(function(result) {
-                                if (result.status === Office.AsyncResultStatus.Succeeded) {
-                                    recipients.bcc = result.value;
+                    Office.context.mailbox.item.getAsync(function(result) {
+                        var htmlContent = document.getElementById('htmlContent').value;
+                        if (item) {
+                          item.body.setAsync(htmlContent, { coercionType: "html" }, function(result) {
+                            if (result.status === "succeeded") {
+                              // Sende die E-Mail
+                              item.sendAsync(function(sendResult) {
+                                if (sendResult.status === "succeeded") {
+                                  console.log("E-Mail gesendet!");
                                 } else {
-                                    console.log("Fehler beim Abrufen der Empfänger (BCC): " + result.error.message);
+                                  console.error("Fehler beim Senden der E-Mail: " + sendResult.error.message);
                                 }
-
-                                // Sobald alle Empfänger abgerufen wurden, Anzeige im div
-                                const jsonResult = JSON.stringify(recipients, null, 2); // Formatierte Ausgabe
-                                document.getElementById("recipientsDiv").textContent = jsonResult; // Ausgabe im div
-                            });
-                        });
+                              });
+                            } else {
+                              console.error("Fehler beim Setzen des HTML-Inhalts: " + result.error.message);
+                            }
+                          });
+                        } else {
+                          console.error("Kein E-Mail-Element gefunden.");
+                        }
                     });
                 });
             }
@@ -58,6 +50,8 @@
 <body>
     <h1>Outlook Add-In</h1>
     <p>Dieses Add-In zeigt Empfängerinformationen an.</p>
+
+    <textarea id="htmlContent" rows="10" cols="50"></textarea><br>
 
     <!-- Button zum Abrufen und Anzeigen der Empfänger -->
     <button id="loadRecipientsButton">Empfänger anzeigen</button>
