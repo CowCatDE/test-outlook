@@ -3,44 +3,44 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HTML Anhängen</title>
+  <title>HTML-Inhalt Anhängen</title>
   <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
 </head>
 <body>
-  <h1>HTML-Inhalt anhängen</h1>
+  <h1>HTML-Inhalt eingeben</h1>
   <textarea id="htmlContent" rows="10" cols="50" placeholder="Gib hier den HTML-Inhalt ein..."></textarea><br><br>
   <button id="sendButton">E-Mail senden</button>
 
   <script>
-    Office.onReady(function (info) {
-        document.getElementById('sendButton').onclick = function() {
-          // Hole den HTML-Inhalt aus dem Textfeld
-          var htmlContent = document.getElementById('htmlContent').value;
-    
-          // Wenn Inhalt eingegeben wurde
-          if (htmlContent.trim() !== '') {
-            // Verwende das Office-JavaScript-API, um den HTMLBody der E-Mail zu setzen
-            Office.context.mailbox.item.body.setAsync(htmlContent, { coercionType: Office.CoercionType.Html }, function(asyncResult) {
-              if (asyncResult.status === Office.AsyncResultStatus.Succeeded) {
-                // Sende die E-Mail nach dem Hinzufügen des HTML-Inhalts
-                Office.context.mailbox.item.saveAsync(function(saveResult) {
-                  if (saveResult.status === Office.AsyncResultStatus.Succeeded) {
-                    Office.context.mailbox.item.send();
-                  } else {
-                    alert('Fehler beim Speichern der E-Mail: ' + saveResult.error.message);
-                  }
-                });
+    document.getElementById('sendButton').onclick = function() {
+      // Hole den HTML-Inhalt aus dem Textbereich
+      var htmlContent = document.getElementById('htmlContent').value;
+
+      // Wenn Inhalt eingegeben wurde
+      if (htmlContent.trim() !== '') {
+        // HTML-Inhalt wird als HTMLBody gesetzt
+        Office.context.mailbox.item.body.setAsync(htmlContent, { coercionType: Office.CoercionType.Html }, function(asyncResult) {
+          if (asyncResult.status === Office.AsyncResultStatus.Succeeded) {
+            // Speichern der E-Mail, damit sie anschließend gesendet werden kann
+            Office.context.mailbox.item.saveAsync(function(saveResult) {
+              if (saveResult.status === Office.AsyncResultStatus.Succeeded) {
+                // Nach dem Speichern wird die E-Mail gesendet
+                Office.context.mailbox.item.send(function(testResult) {console.log(JSON.stringify(testResult))});
               } else {
-                alert('Fehler beim Hinzufügen des HTML-Inhalts: ' + asyncResult.error.message);
+                alert('Fehler beim Speichern der E-Mail: ' + saveResult.error.message);
               }
             });
           } else {
-            alert('Kein HTML-Inhalt eingegeben. E-Mail wird ohne Anhänge gesendet.');
-            // Sende die E-Mail ohne Anhängen des HTML-Inhalts
-            Office.context.mailbox.item.send();
+            alert('Fehler beim Setzen des HTML-Inhalts: ' + asyncResult.error.message);
           }
-        };
-    })
+        });
+      } else {
+        // Falls kein HTML-Inhalt eingegeben wurde, sende die E-Mail ohne den Inhalt
+        alert('Kein HTML-Inhalt eingegeben. E-Mail wird ohne HTML gesendet.');
+        // E-Mail wird ohne HTML gesendet
+        Office.context.mailbox.item.send();
+      }
+    };
   </script>
 </body>
 </html>
