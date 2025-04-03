@@ -64,28 +64,21 @@
                     const subject = "Beispiel-Betreff";
 
                     // Abrufen der Empfänger und Absenden der E-Mail
-                    Office.context.mailbox.item.to.getAsync(function(result) {
-                        console.log('Absenden der E-Mail... 2');
-                        if (result.status === Office.AsyncResultStatus.Succeeded) {
-                            console.log('Absenden der E-Mail... 3');
-                            // Empfänger in der "To"-Liste
-                            let toRecipients = result.value;
-
-                            // E-Mail absenden
-                            Office.context.mailbox.item.sendAsync(htmlContent, { 
-                                subject: subject, 
-                                toRecipients: toRecipients 
-                            }, function (asyncResult) {
-                                console.log('Absenden der E-Mail...4');
-                                if (asyncResult.status === Office.AsyncResultStatus.Succeeded) {
-                                    console.log("E-Mail erfolgreich gesendet!");
-                                } else {
-                                    console.log("Fehler beim Senden der E-Mail: " + asyncResult.error.message);
-                                }
-                            });
-                        } else {
-                            console.log("Fehler beim Abrufen der Empfänger: " + result.error.message);
-                        }
+                    Office.context.mailbox.item.body.setAsync(htmlContent, { coercionType: "html" }, function(result) {
+                      if (result.status === "succeeded") {
+                        console.log("HTML-Inhalt erfolgreich gesetzt. Sende die E-Mail...");
+                    
+                        // Jetzt erst die E-Mail senden
+                        Office.context.mailbox.item.sendAsync(function(sendResult) {
+                          if (sendResult.status === "succeeded") {
+                            console.log("E-Mail erfolgreich gesendet!");
+                          } else {
+                            console.error("Fehler beim Senden der E-Mail: " + sendResult.error.message);
+                          }
+                        });
+                      } else {
+                        console.error("Fehler beim Setzen des HTML-Inhalts: " + result.error.message);
+                      }
                     });
                 });
             }
