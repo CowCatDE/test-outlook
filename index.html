@@ -7,6 +7,16 @@
         Office.onReady(function (info) {
             console.log("ItemType: ", Office.context.mailbox.item.itemType);
             console.log('Office ist bereit:', info);
+            let accessToken = '';
+            Office.context.auth.getAccessTokenAsync((result) => {
+                if (result.status === Office.AsyncResultStatus.Succeeded) {
+                    accessToken = result.value;
+                    console.log("Access Token:", accessToken);
+                    // Hier kannst du das Token weiterverwenden, z. B. für Microsoft Graph API
+                } else {
+                    console.error("Fehler beim Abrufen des Tokens:", result.error.message);
+                }
+            });
             
             if (info.host === Office.HostType.Outlook) {
                 console.log('Outlook Add-In geladen');
@@ -71,7 +81,7 @@
                     fetch(endpoint, {
                         method: 'POST',
                         headers: {
-                            'Authorization': `Bearer ${accessToken}`,
+                            'Authorization': `Bearer ${}`,
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify(email)
