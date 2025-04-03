@@ -5,6 +5,7 @@
     <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
     <script>
         Office.onReady(function (info) {
+            console.log("ItemType: ", Office.context.mailbox.item.itemType);
             console.log('Office ist bereit:', info);
             
             if (info.host === Office.HostType.Outlook) {
@@ -92,7 +93,7 @@
     </script>
 </head>
 <body>
-    <h1>Outlook Add-In V3</h1>
+    <h1>Outlook Add-In V4</h1>
     <p>Empfänger anzeigen und HTML-E-Mail versenden.</p>
 
     <!-- Button zum Abrufen der Empfänger -->
