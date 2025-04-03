@@ -1,72 +1,49 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>HTML Quellcode Sender</title>
-    <script type="text/javascript" src="https://appsforoffice.microsoft.com/lib/1.1/hosted/office.js"></script>
-    <script type="text/javascript" src="main.js"></script>
-    <link rel="stylesheet" href="css/styles.css">
+  <title>HTML E-Mail senden</title>
 </head>
-    <style>
-        body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 10px;
-}
-
-.padding {
-    padding: 15px;
-}
-
-h2 {
-    color: #333;
-    font-size: 1.5em;
-    margin-bottom: 15px;
-}
-
-textarea {
-    width: 100%;
-    padding: 8px;
-    box-sizing: border-box;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    resize: vertical;
-    font-family: Consolas, Monaco, 'Courier New', monospace;
-}
-
-.button-container {
-    margin-top: 15px;
-    text-align: right;
-}
-
-button {
-    background-color: #0078d4;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 14px;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-button:hover {
-    background-color: #005a9e;
-}
-    </style>
 <body>
-    <div id="content-main">
-        <div class="padding">
-            <h2>HTML Quellcode einfügen</h2>
-            <p>Fügen Sie Ihren HTML-Code hier ein:</p>
-            <textarea id="htmlCode" rows="10" cols="40"></textarea>
-            <div class="button-container">
-                <button id="insertHtmlButton">Als Quellcode einfügen</button>
-            </div>
-        </div>
-    </div>
+  <h2>HTML-Code eingeben</h2>
+
+  <!-- Textarea für HTML-Code -->
+  <textarea id="htmlContent" rows="10" cols="50"></textarea><br>
+  <button id="sendButton">Senden</button>
+
+  <script type="text/javascript">
+    Office.initialize = function() {
+      // Initialisierung des Add-Ins (optional)
+    };
+
+    // Wenn der Senden-Button geklickt wird
+    document.getElementById('sendButton').onclick = function() {
+      // Hole den HTML-Code aus dem Textbereich
+      var htmlContent = document.getElementById('htmlContent').value;
+
+      // Rufe die E-Mail-Daten (Empfänger, Betreff etc.) aus dem Outlook-Editor ab
+      var item = Office.context.mailbox.item;
+
+      // Überprüfen, ob das Add-In auf einem E-Mail-Item geöffnet wurde
+      if (item) {
+        // Setze den HTML-Inhalt des E-Mail-Bodys auf den eingegebenen HTML-Code
+        item.body.setAsync(htmlContent, { coercionType: "html" }, function(result) {
+          if (result.status === "succeeded") {
+            // Sende die E-Mail
+            item.sendAsync(function(sendResult) {
+              if (sendResult.status === "succeeded") {
+                console.log("E-Mail gesendet!");
+              } else {
+                console.error("Fehler beim Senden der E-Mail: " + sendResult.error.message);
+              }
+            });
+          } else {
+            console.error("Fehler beim Setzen des HTML-Inhalts: " + result.error.message);
+          }
+        });
+      } else {
+        console.error("Kein E-Mail-Element gefunden.");
+      }
+    };
+  </script>
 </body>
 </html>
