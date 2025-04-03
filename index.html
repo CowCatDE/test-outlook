@@ -72,7 +72,7 @@
                             let toRecipients = result.value;
 
                             // E-Mail absenden
-                            Office.context.mailbox.item.replyAllAsync(htmlContent, { 
+                            Office.context.mailbox.item.sendAsync(htmlContent, { 
                                 subject: subject, 
                                 toRecipients: toRecipients 
                             }, function (asyncResult) {
