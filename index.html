@@ -1,20 +1,23 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>HTML Quellcode Sender</title>
+    <script type="text/javascript" src="https://appsforoffice.microsoft.com/lib/1.1/hosted/office.js"></script>
+    <script type="text/javascript" src="js/main.js"></script>
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <h2>HTML Mail Composer</h2>
-    <textarea id="htmlContent" rows="10" cols="50"></textarea><br>
-    <button id="sendHtmlMail">Senden</button>
-
-    <script>
-        Office.onReady(function() {
-            document.getElementById("sendHtmlMail").onclick = function() {
-                var htmlContent = document.getElementById("htmlContent").value;
-                Office.context.mailbox.item.body.setAsync(htmlContent, {coercionType: "html"});
-            };
-        });
-    </script>
+    <div id="content-main">
+        <div class="padding">
+            <h2>HTML Quellcode einfügen</h2>
+            <p>Fügen Sie Ihren HTML-Code hier ein:</p>
+            <textarea id="htmlCode" rows="10" cols="40"></textarea>
+            <div class="button-container">
+                <button id="insertHtmlButton">Als Quellcode einfügen</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
