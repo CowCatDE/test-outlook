@@ -56,19 +56,19 @@
 
                 // Button zum Absenden der E-Mail
                 document.getElementById("sendEmailButton").addEventListener("click", function () {
-
-                    console.log('es geht lose')
+                    console.log('Absenden der E-Mail...');
                     // HTML-Inhalt aus dem textarea holen
                     const htmlContent = document.getElementById("emailBodyTextarea").value;
 
                     // E-Mail-Inhalt und Empfänger festlegen
                     const subject = "Beispiel-Betreff";
 
-                    const recipients = Office.context.mailbox.item.to.getAsync(function(result) {
+                    // Abrufen der Empfänger und Absenden der E-Mail
+                    Office.context.mailbox.item.to.getAsync(function(result) {
                         if (result.status === Office.AsyncResultStatus.Succeeded) {
                             // Empfänger in der "To"-Liste
-                            console.log('es geht lose 2')
                             let toRecipients = result.value;
+
                             // E-Mail absenden
                             Office.context.mailbox.item.replyAllAsync(htmlContent, { 
                                 subject: subject, 
@@ -79,10 +79,9 @@
                                 } else {
                                     console.log("Fehler beim Senden der E-Mail: " + asyncResult.error.message);
                                 }
-                            }) else {
-                            result.error.message
-                             console.log('es geht lose 24')
-                        };
+                            });
+                        } else {
+                            console.log("Fehler beim Abrufen der Empfänger: " + result.error.message);
                         }
                     });
                 });
@@ -91,7 +90,7 @@
     </script>
 </head>
 <body>
-    <h1>Outlook Add-In</h1>
+    <h1>Outlook Add-In V2</h1>
     <p>Dieses Add-In zeigt Empfängerinformationen an und ermöglicht das Absenden einer E-Mail mit HTML-Inhalt.</p>
 
     <!-- Button zum Abrufen der Empfänger -->
