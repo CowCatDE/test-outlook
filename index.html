@@ -81,7 +81,7 @@
                     fetch(endpoint, {
                         method: 'POST',
                         headers: {
-                            'Authorization': `Bearer ${}`,
+                            'Authorization': `Bearer ${accessToken}`,
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify(email)
