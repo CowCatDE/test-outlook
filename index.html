@@ -10,99 +10,106 @@
             if (info.host === Office.HostType.Outlook) {
                 console.log('Outlook Add-In geladen');
 
-                // Button zum Empfänger anzeigen
-                document.getElementById("loadRecipientsButton").addEventListener("click", function () {
-                    // Empfänger-Datenstruktur
-                    const recipients = {
-                        to: [],
-                        cc: [],
-                        bcc: []
-                    };
+                // Funktion zum Laden der Empfänger
+                function loadRecipients() {
+                    console.log("Lade Empfänger...");
+                    
+                    const recipients = { to: [], cc: [], bcc: [] };
+                    
+                    if (!Office.context.mailbox.item) {
+                        console.error("Kein E-Mail-Element verfügbar.");
+                        return;
+                    }
 
-                    // Abrufen der 'To'-Empfänger
                     Office.context.mailbox.item.to.getAsync(function(result) {
                         if (result.status === Office.AsyncResultStatus.Succeeded) {
-                            recipients.to = result.value;
-                        } else {
-                            console.log("Fehler beim Abrufen der Empfänger (To): " + result.error.message);
+                            recipients.to = result.value.map(e => e.emailAddress);
                         }
 
-                        // Abrufen der 'CC'-Empfänger
                         Office.context.mailbox.item.cc.getAsync(function(result) {
                             if (result.status === Office.AsyncResultStatus.Succeeded) {
-                                recipients.cc = result.value;
-                            } else {
-                                console.log("Fehler beim Abrufen der Empfänger (CC): " + result.error.message);
+                                recipients.cc = result.value.map(e => e.emailAddress);
                             }
 
-                            // Abrufen der 'BCC'-Empfänger
                             Office.context.mailbox.item.bcc.getAsync(function(result) {
                                 if (result.status === Office.AsyncResultStatus.Succeeded) {
-                                    recipients.bcc = result.value;
-                                } else {
-                                    console.log("Fehler beim Abrufen der Empfänger (BCC): " + result.error.message);
+                                    recipients.bcc = result.value.map(e => e.emailAddress);
                                 }
 
-                                // Sobald alle Empfänger abgerufen wurden, Anzeige im div
-                                const jsonResult = JSON.stringify(recipients, null, 2); // Formatierte Ausgabe
-                                document.getElementById("recipientsDiv").textContent = jsonResult; // Ausgabe im div
-                                
-                                // Aktivieren des Absende-Buttons
+                                document.getElementById("recipientsDiv").textContent = JSON.stringify(recipients, null, 2);
                                 document.getElementById("sendEmailButton").disabled = false;
                             });
                         });
                     });
-                });
+                }
 
-                // Button zum Absenden der E-Mail
-                document.getElementById("sendEmailButton").addEventListener("click", function () {
-                    console.log('Absenden der E-Mail...');
-                    // HTML-Inhalt aus dem textarea holen
+                // Funktion zum Senden der E-Mail
+                function sendEmail() {
+                    console.log('Starte Versand...');
+                    
                     const htmlContent = document.getElementById("emailBodyTextarea").value;
 
-                    // E-Mail-Inhalt und Empfänger festlegen
-                    const subject = "Beispiel-Betreff";
+                    if (!Office.context.mailbox.item) {
+                        console.error("Kein E-Mail-Element verfügbar.");
+                        return;
+                    }
 
-                    // Abrufen der Empfänger und Absenden der E-Mail
+                    // HTML-Body setzen
                     Office.context.mailbox.item.body.setAsync(htmlContent, { coercionType: "html" }, function(result) {
-                      if (result.status === "succeeded") {
-                        console.log("HTML-Inhalt erfolgreich gesetzt. Sende die E-Mail...");
-                    
-                        // Jetzt erst die E-Mail senden
-                        Office.context.mailbox.item.sendAsync(function(sendResult) {
-                          if (sendResult.status === "succeeded") {
-                            console.log("E-Mail erfolgreich gesendet!");
-                          } else {
-                            console.error("Fehler beim Senden der E-Mail: " + sendResult.error.message);
-                          }
-                        });
-                      } else {
-                        console.error("Fehler beim Setzen des HTML-Inhalts: " + result.error.message);
-                      }
+                        if (result.status === "succeeded") {
+                            console.log("HTML-Inhalt gesetzt. Speichere und sende E-Mail...");
+
+                            // Speichern, dann senden
+                            Office.context.mailbox.item.saveAsync(function(saveResult) {
+                                if (saveResult.status === "succeeded") {
+                                    console.log("E-Mail gespeichert. Senden...");
+                                    
+                                    Office.context.mailbox.item.sendAsync(function(sendResult) {
+                                        if (sendResult.status === "succeeded") {
+                                            console.log("E-Mail erfolgreich gesendet!");
+                                            alert("E-Mail erfolgreich gesendet!");
+                                        } else {
+                                            console.error("Fehler beim Senden: " + sendResult.error.message);
+                                            alert("Fehler beim Senden: " + sendResult.error.message);
+                                        }
+                                    });
+
+                                } else {
+                                    console.error("Fehler beim Speichern: " + saveResult.error.message);
+                                }
+                            });
+
+                        } else {
+                            console.error("Fehler beim Setzen des HTML-Inhalts: " + result.error.message);
+                        }
                     });
-                });
+                }
+
+                // Event-Listener für die Buttons
+                document.getElementById("loadRecipientsButton").addEventListener("click", loadRecipients);
+                document.getElementById("sendEmailButton").addEventListener("click", sendEmail);
             }
         });
     </script>
 </head>
 <body>
     <h1>Outlook Add-In V3</h1>
-    <p>Dieses Add-In zeigt Empfängerinformationen an und ermöglicht das Absenden einer E-Mail mit HTML-Inhalt.</p>
+    <p>Empfänger anzeigen und HTML-E-Mail versenden.</p>
 
     <!-- Button zum Abrufen der Empfänger -->
     <button id="loadRecipientsButton">Empfänger anzeigen</button>
 
-    <!-- Div zur Anzeige der Empfänger als JSON -->
+    <!-- Anzeige der Empfänger -->
     <div id="recipientsDiv" style="white-space: pre-wrap; border: 1px solid #ccc; padding: 10px; margin-top: 20px;">
         <!-- Hier wird das JSON angezeigt -->
     </div>
 
-    <!-- Textarea für den HTML-Inhalt der E-Mail -->
+    <!-- Textarea für HTML-Inhalt -->
     <h3>Geben Sie den HTML-Body der E-Mail ein:</h3>
     <textarea id="emailBodyTextarea" rows="10" cols="50" placeholder="Geben Sie den HTML-Inhalt der E-Mail hier ein..."></textarea>
 
     <br><br>
-    <!-- Button zum Absenden der E-Mail -->
+    <!-- Button zum Absenden -->
     <button id="sendEmailButton" disabled>Absenden</button>
 </body>
 </html>
