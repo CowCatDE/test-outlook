@@ -9,22 +9,62 @@
             console.log('Office ist bereit:', info);
             
             if (info.host === Office.HostType.Outlook) {
-                // Outlook-spezifische Logik
                 console.log('Outlook Add-In geladen');
-                // Hier können Sie Ihre Funktionen aufrufen, z. B. Empfänger abfragen
-                Office.context.mailbox.item.to.getAsync(function(result) {
-                    if (result.status === Office.AsyncResultStatus.Succeeded) {
-                        console.log("Empfänger (To): " + result.value);
-                    } else {
-                        console.log("Fehler beim Abrufen der Empfänger: " + result.error.message);
-                    }
+
+                // Button und Event Listener für das Abrufen der Empfänger
+                document.getElementById("loadRecipientsButton").addEventListener("click", function () {
+                    // Empfänger-Datenstruktur
+                    const recipients = {
+                        to: [],
+                        cc: [],
+                        bcc: []
+                    };
+
+                    // Abrufen der 'To'-Empfänger
+                    Office.context.mailbox.item.to.getAsync(function(result) {
+                        if (result.status === Office.AsyncResultStatus.Succeeded) {
+                            recipients.to = result.value;
+                        } else {
+                            console.log("Fehler beim Abrufen der Empfänger (To): " + result.error.message);
+                        }
+
+                        // Abrufen der 'CC'-Empfänger
+                        Office.context.mailbox.item.cc.getAsync(function(result) {
+                            if (result.status === Office.AsyncResultStatus.Succeeded) {
+                                recipients.cc = result.value;
+                            } else {
+                                console.log("Fehler beim Abrufen der Empfänger (CC): " + result.error.message);
+                            }
+
+                            // Abrufen der 'BCC'-Empfänger
+                            Office.context.mailbox.item.bcc.getAsync(function(result) {
+                                if (result.status === Office.AsyncResultStatus.Succeeded) {
+                                    recipients.bcc = result.value;
+                                } else {
+                                    console.log("Fehler beim Abrufen der Empfänger (BCC): " + result.error.message);
+                                }
+
+                                // Sobald alle Empfänger abgerufen wurden, Anzeige im div
+                                const jsonResult = JSON.stringify(recipients, null, 2); // Formatierte Ausgabe
+                                document.getElementById("recipientsDiv").textContent = jsonResult; // Ausgabe im div
+                            });
+                        });
+                    });
                 });
             }
         });
     </script>
 </head>
 <body>
-    <h1>Mein Outlook</h1>
+    <h1>Outlook Add-In</h1>
     <p>Dieses Add-In zeigt Empfängerinformationen an.</p>
+
+    <!-- Button zum Abrufen und Anzeigen der Empfänger -->
+    <button id="loadRecipientsButton">Empfänger anzeigen</button>
+
+    <!-- Div zur Anzeige der Empfänger als JSON -->
+    <div id="recipientsDiv" style="white-space: pre-wrap; border: 1px solid #ccc; padding: 10px; margin-top: 20px;">
+        <!-- Hier wird das JSON angezeigt -->
+    </div>
 </body>
 </html>
