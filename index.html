@@ -65,7 +65,9 @@
 
                     // Abrufen der Empfänger und Absenden der E-Mail
                     Office.context.mailbox.item.to.getAsync(function(result) {
+                        console.log('Absenden der E-Mail... 2');
                         if (result.status === Office.AsyncResultStatus.Succeeded) {
+                            console.log('Absenden der E-Mail... 3');
                             // Empfänger in der "To"-Liste
                             let toRecipients = result.value;
 
@@ -74,6 +76,7 @@
                                 subject: subject, 
                                 toRecipients: toRecipients 
                             }, function (asyncResult) {
+                                console.log('Absenden der E-Mail...4');
                                 if (asyncResult.status === Office.AsyncResultStatus.Succeeded) {
                                     console.log("E-Mail erfolgreich gesendet!");
                                 } else {
@@ -90,7 +93,7 @@
     </script>
 </head>
 <body>
-    <h1>Outlook Add-In V2</h1>
+    <h1>Outlook Add-In V3</h1>
     <p>Dieses Add-In zeigt Empfängerinformationen an und ermöglicht das Absenden einer E-Mail mit HTML-Inhalt.</p>
 
     <!-- Button zum Abrufen der Empfänger -->
