@@ -1,49 +1,30 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>HTML E-Mail senden</title>
-  <!-- Office.js laden -->
-  <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+    <title>Outlook Add-In</title>
+    <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+    <script>
+        Office.onReady(function (info) {
+            // Office ist bereit
+            console.log('Office ist bereit:', info);
+            
+            if (info.host === Office.HostType.Outlook) {
+                // Outlook-spezifische Logik
+                console.log('Outlook Add-In geladen');
+                // Hier können Sie Ihre Funktionen aufrufen, z. B. Empfänger abfragen
+                Office.context.mailbox.item.to.getAsync(function(result) {
+                    if (result.status === Office.AsyncResultStatus.Succeeded) {
+                        console.log("Empfänger (To): " + result.value);
+                    } else {
+                        console.log("Fehler beim Abrufen der Empfänger: " + result.error.message);
+                    }
+                });
+            }
+        });
+    </script>
 </head>
 <body>
-  <h2>HTML-Code eingeben</h2>
-
-  <!-- Textarea für HTML-Code -->
-  <textarea id="htmlContent" rows="10" cols="50"></textarea><br>
-  <button id="sendButton">Senden</button>
-
-  <script type="text/javascript">
-    // Office.initialize sicherstellen, dass Office.js korrekt geladen ist
-    Office.initialize = function () {
-      // Wenn die Office-API verfügbar ist, kann der folgende Code ausgeführt werden
-      document.getElementById('sendButton').onclick = function() {
-        var htmlContent = document.getElementById('htmlContent').value;
-
-        // Rufe das aktuelle E-Mail-Element von Outlook ab
-        var item = Office.context.mailbox.item;
-
-        // Überprüfen, ob es ein E-Mail-Element gibt
-        if (item) {
-          // Setze den HTML-Inhalt des E-Mail-Bodys
-          item.body.setAsync(htmlContent, { coercionType: "html" }, function(result) {
-            if (result.status === "succeeded") {
-              // Sende die E-Mail
-              item.sendAsync(function(sendResult) {
-                if (sendResult.status === "succeeded") {
-                  console.log("E-Mail gesendet!");
-                } else {
-                  console.error("Fehler beim Senden der E-Mail: " + sendResult.error.message);
-                }
-              });
-            } else {
-              console.error("Fehler beim Setzen des HTML-Inhalts: " + result.error.message);
-            }
-          });
-        } else {
-          console.error("Kein E-Mail-Element gefunden.");
-        }
-      };
-    };
-  </script>
+    <h1>Mein Outlook Add-In</h1>
+    <p>Dieses Add-In zeigt Empfängerinformationen an.</p>
 </body>
 </html>
