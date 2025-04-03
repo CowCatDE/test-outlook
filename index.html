@@ -2,6 +2,7 @@
 <html>
 <head>
   <title>HTML E-Mail senden</title>
+  <!-- Office.js laden -->
   <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
 </head>
 <body>
@@ -12,38 +13,36 @@
   <button id="sendButton">Senden</button>
 
   <script type="text/javascript">
-    Office.initialize = function() {
-      // Initialisierung des Add-Ins (optional)
-    };
+    // Office.initialize sicherstellen, dass Office.js korrekt geladen ist
+    Office.initialize = function () {
+      // Wenn die Office-API verfügbar ist, kann der folgende Code ausgeführt werden
+      document.getElementById('sendButton').onclick = function() {
+        var htmlContent = document.getElementById('htmlContent').value;
 
-    // Wenn der Senden-Button geklickt wird
-    document.getElementById('sendButton').onclick = function() {
-      // Hole den HTML-Code aus dem Textbereich
-      var htmlContent = document.getElementById('htmlContent').value;
+        // Rufe das aktuelle E-Mail-Element von Outlook ab
+        var item = Office.context.mailbox.item;
 
-      // Rufe die E-Mail-Daten (Empfänger, Betreff etc.) aus dem Outlook-Editor ab
-      var item = Office.context.mailbox.item;
-
-      // Überprüfen, ob das Add-In auf einem E-Mail-Item geöffnet wurde
-      if (item) {
-        // Setze den HTML-Inhalt des E-Mail-Bodys auf den eingegebenen HTML-Code
-        item.body.setAsync(htmlContent, { coercionType: "html" }, function(result) {
-          if (result.status === "succeeded") {
-            // Sende die E-Mail
-            item.sendAsync(function(sendResult) {
-              if (sendResult.status === "succeeded") {
-                console.log("E-Mail gesendet!");
-              } else {
-                console.error("Fehler beim Senden der E-Mail: " + sendResult.error.message);
-              }
-            });
-          } else {
-            console.error("Fehler beim Setzen des HTML-Inhalts: " + result.error.message);
-          }
-        });
-      } else {
-        console.error("Kein E-Mail-Element gefunden.");
-      }
+        // Überprüfen, ob es ein E-Mail-Element gibt
+        if (item) {
+          // Setze den HTML-Inhalt des E-Mail-Bodys
+          item.body.setAsync(htmlContent, { coercionType: "html" }, function(result) {
+            if (result.status === "succeeded") {
+              // Sende die E-Mail
+              item.sendAsync(function(sendResult) {
+                if (sendResult.status === "succeeded") {
+                  console.log("E-Mail gesendet!");
+                } else {
+                  console.error("Fehler beim Senden der E-Mail: " + sendResult.error.message);
+                }
+              });
+            } else {
+              console.error("Fehler beim Setzen des HTML-Inhalts: " + result.error.message);
+            }
+          });
+        } else {
+          console.error("Kein E-Mail-Element gefunden.");
+        }
+      };
     };
   </script>
 </body>
