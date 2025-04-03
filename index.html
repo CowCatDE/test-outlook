@@ -56,6 +56,8 @@
 
                 // Button zum Absenden der E-Mail
                 document.getElementById("sendEmailButton").addEventListener("click", function () {
+
+                    console.log('es geht lose')
                     // HTML-Inhalt aus dem textarea holen
                     const htmlContent = document.getElementById("emailBodyTextarea").value;
 
@@ -65,6 +67,7 @@
                     const recipients = Office.context.mailbox.item.to.getAsync(function(result) {
                         if (result.status === Office.AsyncResultStatus.Succeeded) {
                             // Empfänger in der "To"-Liste
+                            console.log('es geht lose 2')
                             let toRecipients = result.value;
                             // E-Mail absenden
                             Office.context.mailbox.item.replyAllAsync(htmlContent, { 
@@ -76,7 +79,10 @@
                                 } else {
                                     console.log("Fehler beim Senden der E-Mail: " + asyncResult.error.message);
                                 }
-                            });
+                            }) else {
+                            result.error.message
+                             console.log('es geht lose 24')
+                        };
                         }
                     });
                 });
