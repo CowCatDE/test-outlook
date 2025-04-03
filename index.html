@@ -7,7 +7,6 @@
         Office.onReady(function (info) {
             console.log("ItemType: ", Office.context.mailbox.item.itemType);
             console.log('Office ist bereit:', info);
-            Office.context.mailbox.item.display();
             
             if (info.host === Office.HostType.Outlook) {
                 console.log('Outlook Add-In geladen');
