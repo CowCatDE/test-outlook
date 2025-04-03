@@ -25,13 +25,14 @@
             Office.context.mailbox.item.saveAsync(function(saveResult) {
               if (saveResult.status === Office.AsyncResultStatus.Succeeded) {
                 // Nach dem Speichern wird die E-Mail gesendet
+                   console.log('Yes yes yes ' + saveResult.error.message);
                 Office.context.mailbox.item.send(function(testResult) {console.log(JSON.stringify(testResult))});
               } else {
-                alert('Fehler beim Speichern der E-Mail: ' + saveResult.error.message);
+                  console.log('Fehler beim Speichern der E-Mail: ' + saveResult.error.message);
               }
             });
           } else {
-            alert('Fehler beim Setzen des HTML-Inhalts: ' + asyncResult.error.message);
+            console.log('Fehler beim Setzen des HTML-Inhalts: ' + asyncResult.error.message);
           }
         });
       } else {
