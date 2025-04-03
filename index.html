@@ -49,39 +49,42 @@
                     console.log('Starte Versand...');
                     
                     const htmlContent = document.getElementById("emailBodyTextarea").value;
-
-                    if (!Office.context.mailbox.item) {
-                        console.error("Kein E-Mail-Element verfügbar.");
-                        return;
-                    }
-
-                    // HTML-Body setzen
-                    Office.context.mailbox.item.body.setAsync(htmlContent, { coercionType: "html" }, function(result) {
-                        if (result.status === "succeeded") {
-                            console.log("HTML-Inhalt gesetzt. Speichere und sende E-Mail...");
-
-                            // Speichern, dann senden
-                            Office.context.mailbox.item.saveAsync(function(saveResult) {
-                                if (saveResult.status === "succeeded") {
-                                    console.log("E-Mail gespeichert. Senden...");
-                                    
-                                    Office.context.mailbox.item.sendAsync(function(sendResult) {
-                                        if (sendResult.status === "succeeded") {
-                                            console.log("E-Mail erfolgreich gesendet!");
-                                        } else {
-                                            console.error("Fehler beim Senden: " + sendResult.error.message);
-                                            console.log(JSON.stringify(sendResult.error))
-                                        }
-                                    });
-
-                                } else {
-                                    console.error("Fehler beim Speichern: " + saveResult.error.message);
+      
+                    const endpoint = 'https://graph.microsoft.com/v1.0/me/sendMail';
+                    const email = {
+                        message: {
+                            subject: 'Betreff der E-Mail',
+                            body: {
+                                contentType: 'html',
+                                content: htmlContent
+                            },
+                            toRecipients: [
+                                {
+                                    emailAddress: {
+                                        address: 'moritz.bergmann@cgi.com'
+                                    }
                                 }
-                            });
-
-                        } else {
-                            console.error("Fehler beim Setzen des HTML-Inhalts: " + result.error.message);
+                            ]
                         }
+                    };
+                    
+                    fetch(endpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${accessToken}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(email)
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            console.log('E-Mail erfolgreich gesendet');
+                        } else {
+                            console.error('Fehler beim Senden der E-Mail');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Netzwerkfehler:', error);
                     });
                 }
 
