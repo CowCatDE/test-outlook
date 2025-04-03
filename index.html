@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+</head>
+<body>
+    <h2>HTML Mail Composer</h2>
+    <textarea id="htmlContent" rows="10" cols="50"></textarea><br>
+    <button id="sendHtmlMail">Senden</button>
+
+    <script>
+        Office.onReady(function() {
+            document.getElementById("sendHtmlMail").onclick = function() {
+                var htmlContent = document.getElementById("htmlContent").value;
+                Office.context.mailbox.item.body.setAsync(htmlContent, {coercionType: "html"});
+            };
+        });
+    </script>
+</body>
+</html>
