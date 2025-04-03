@@ -67,10 +67,9 @@
                                     Office.context.mailbox.item.sendAsync(function(sendResult) {
                                         if (sendResult.status === "succeeded") {
                                             console.log("E-Mail erfolgreich gesendet!");
-                                            alert("E-Mail erfolgreich gesendet!");
                                         } else {
                                             console.error("Fehler beim Senden: " + sendResult.error.message);
-                                            alert("Fehler beim Senden: " + sendResult.error.message);
+                                            console.log(JSON.stringify(sendResult.error.message))
                                         }
                                     });
 
