@@ -5,13 +5,12 @@
     <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
     <script>
         Office.onReady(function (info) {
-            // Office ist bereit
             console.log('Office ist bereit:', info);
             
             if (info.host === Office.HostType.Outlook) {
                 console.log('Outlook Add-In geladen');
 
-                // Button und Event Listener für das Abrufen der Empfänger
+                // Button zum Empfänger anzeigen
                 document.getElementById("loadRecipientsButton").addEventListener("click", function () {
                     // Empfänger-Datenstruktur
                     const recipients = {
@@ -21,25 +20,63 @@
                     };
 
                     // Abrufen der 'To'-Empfänger
-                    Office.context.mailbox.item.getAsync(function(result) {
-                        var htmlContent = document.getElementById('htmlContent').value;
-                        if (item) {
-                          item.body.setAsync(htmlContent, { coercionType: "html" }, function(result) {
-                            if (result.status === "succeeded") {
-                              // Sende die E-Mail
-                              item.sendAsync(function(sendResult) {
-                                if (sendResult.status === "succeeded") {
-                                  console.log("E-Mail gesendet!");
-                                } else {
-                                  console.error("Fehler beim Senden der E-Mail: " + sendResult.error.message);
-                                }
-                              });
-                            } else {
-                              console.error("Fehler beim Setzen des HTML-Inhalts: " + result.error.message);
-                            }
-                          });
+                    Office.context.mailbox.item.to.getAsync(function(result) {
+                        if (result.status === Office.AsyncResultStatus.Succeeded) {
+                            recipients.to = result.value;
                         } else {
-                          console.error("Kein E-Mail-Element gefunden.");
+                            console.log("Fehler beim Abrufen der Empfänger (To): " + result.error.message);
+                        }
+
+                        // Abrufen der 'CC'-Empfänger
+                        Office.context.mailbox.item.cc.getAsync(function(result) {
+                            if (result.status === Office.AsyncResultStatus.Succeeded) {
+                                recipients.cc = result.value;
+                            } else {
+                                console.log("Fehler beim Abrufen der Empfänger (CC): " + result.error.message);
+                            }
+
+                            // Abrufen der 'BCC'-Empfänger
+                            Office.context.mailbox.item.bcc.getAsync(function(result) {
+                                if (result.status === Office.AsyncResultStatus.Succeeded) {
+                                    recipients.bcc = result.value;
+                                } else {
+                                    console.log("Fehler beim Abrufen der Empfänger (BCC): " + result.error.message);
+                                }
+
+                                // Sobald alle Empfänger abgerufen wurden, Anzeige im div
+                                const jsonResult = JSON.stringify(recipients, null, 2); // Formatierte Ausgabe
+                                document.getElementById("recipientsDiv").textContent = jsonResult; // Ausgabe im div
+                                
+                                // Aktivieren des Absende-Buttons
+                                document.getElementById("sendEmailButton").disabled = false;
+                            });
+                        });
+                    });
+                });
+
+                // Button zum Absenden der E-Mail
+                document.getElementById("sendEmailButton").addEventListener("click", function () {
+                    // HTML-Inhalt aus dem textarea holen
+                    const htmlContent = document.getElementById("emailBodyTextarea").value;
+
+                    // E-Mail-Inhalt und Empfänger festlegen
+                    const subject = "Beispiel-Betreff";
+
+                    const recipients = Office.context.mailbox.item.to.getAsync(function(result) {
+                        if (result.status === Office.AsyncResultStatus.Succeeded) {
+                            // Empfänger in der "To"-Liste
+                            let toRecipients = result.value;
+                            // E-Mail absenden
+                            Office.context.mailbox.item.replyAllAsync(htmlContent, { 
+                                subject: subject, 
+                                toRecipients: toRecipients 
+                            }, function (asyncResult) {
+                                if (asyncResult.status === Office.AsyncResultStatus.Succeeded) {
+                                    console.log("E-Mail erfolgreich gesendet!");
+                                } else {
+                                    console.log("Fehler beim Senden der E-Mail: " + asyncResult.error.message);
+                                }
+                            });
                         }
                     });
                 });
@@ -49,9 +86,22 @@
 </head>
 <body>
     <h1>Outlook Add-In</h1>
-    <p>Dieses Add-In zeigt Empfängerinformationen an.</p>
-    <textarea id="htmlContent" rows="10" cols="50" placeholder="test"></textarea><br>
-    <button id="loadRecipientsButton">senden</button>
+    <p>Dieses Add-In zeigt Empfängerinformationen an und ermöglicht das Absenden einer E-Mail mit HTML-Inhalt.</p>
 
+    <!-- Button zum Abrufen der Empfänger -->
+    <button id="loadRecipientsButton">Empfänger anzeigen</button>
+
+    <!-- Div zur Anzeige der Empfänger als JSON -->
+    <div id="recipientsDiv" style="white-space: pre-wrap; border: 1px solid #ccc; padding: 10px; margin-top: 20px;">
+        <!-- Hier wird das JSON angezeigt -->
+    </div>
+
+    <!-- Textarea für den HTML-Inhalt der E-Mail -->
+    <h3>Geben Sie den HTML-Body der E-Mail ein:</h3>
+    <textarea id="emailBodyTextarea" rows="10" cols="50" placeholder="Geben Sie den HTML-Inhalt der E-Mail hier ein..."></textarea>
+
+    <br><br>
+    <!-- Button zum Absenden der E-Mail -->
+    <button id="sendEmailButton" disabled>Absenden</button>
 </body>
 </html>
