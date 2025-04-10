@@ -8,11 +8,11 @@
 </head>
 <body>
   <div>
-    Hallo
+    Hallo - dieser Text wird angezeigt, wenn Sie das Add-In manuell öffnen.
   </div>
   <script>
-    Office.onReady(function() {
-      function onMessageSendHandler(event) {
+    // Definieren Sie die Funktion außerhalb von Office.onReady
+    function onMessageSendHandler(event) {
       const html = `
         <html>
           <head>
@@ -31,18 +31,25 @@
       Office.context.mailbox.item.body.setAsync(
         html,
         { coercionType: Office.CoercionType.Html },
-        function (asyncResult) {
+        function(asyncResult) {
           if (asyncResult.status === Office.AsyncResultStatus.Succeeded) {
             console.log("Body successfully replaced");
             event.completed({ allowEvent: true }); // weiter mit dem Senden
           } else {
             console.error("Error replacing body: " + asyncResult.error.message);
-            event.completed({ allowEvent: false }); // Senden abbrechen
+            event.completed({ allowEvent: false, errorMessage: asyncResult.error.message }); // Senden abbrechen mit Fehlermeldung
           }
         }
       );
     }
-  })
+
+    // Wenn Office.js geladen ist, registrieren Sie die Funktion
+    Office.onReady(function() {
+      // Wichtig: Registrieren Sie die Funktion mit Office.actions.associate
+      Office.actions.associate("onMessageSendHandler", onMessageSendHandler);
+      
+      console.log("Add-in initialization complete, onMessageSendHandler registered");
+    });
   </script>
 </body>
 </html>
